@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockPulse Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neu-brutal {
+            border: 3px solid #000;
+            box-shadow: 5px 5px 0px #000;
+            transition: all 0.2s ease;
+        }
+        .neu-brutal:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0px #000;
+        }
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <nav class="bg-white neu-brutal p-4 mb-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold">StockPulse Pro</h1>
+            <div class="flex items-center gap-4">
+                <input type="text" placeholder="Search stocks..." class="neu-brutal p-2">
+                <button class="bg-yellow-300 neu-brutal px-4 py-2">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <div class="bg-white neu-brutal p-4 mb-6">
+                <div class="flex justify-between mb-4">
+                    <select class="neu-brutal p-2" id="stockSelect">
+                        <option>AAPL</option>
+                        <option>GOOGL</option>
+                        <option>MSFT</option>
+                    </select>
+                    <select class="neu-brutal p-2" id="timeframeSelect">
+                        <option>5m</option>
+                        <option>30m</option>
+                        <option>1h</option>
+                        <option>1D</option>
+                        <option>1W</option>
+                        <option>1M</option>
+                        <option>6M</option>
+                        <option>1Y</option>
+                        <option>All</option>
+                    </select>
+                    <select class="neu-brutal p-2" id="chartType">
+                        <option>Line</option>
+                        <option>Candlestick</option>
+                        <option>Bar</option>
+                    </select>
+                </div>
+                <div id="mainChart" class="w-full h-[400px]"></div>
+            </div>
+
+            <div class="bg-white neu-brutal p-4">
+                <h2 class="text-xl font-bold mb-4">Market Sentiment</h2>
+                <div id="sentimentChart" class="w-full h-[200px]"></div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white neu-brutal p-4">
+                <h3 class="text-lg font-bold mb-4">Company Overview</h3>
+                <div class="space-y-2">
+                    <p><strong>Market Cap:</strong> $2.53T</p>
+                    <p><strong>Listed Shares:</strong> 16.32B</p>
+                    <p><strong>52W High:</strong> $198.23</p>
+                    <p><strong>52W Low:</strong> $124.17</p>
+                    <p><strong>P/E Ratio:</strong> 28.5</p>
+                    <p><strong>D/E Ratio:</strong> 1.68</p>
+                </div>
+            </div>
+
+            <div class="bg-white neu-brutal p-4">
+                <h3 class="text-lg font-bold mb-4">Financial Metrics</h3>
+                <div class="space-y-2">
+                    <p><strong>Revenue (TTM):</strong> $394.3B</p>
+                    <p><strong>Net Income:</strong> $96.1B</p>
+                    <p><strong>Profit Margin:</strong> 24.3%</p>
+                    <p><strong>Total Debt:</strong> $109.3B</p>
+                </div>
+            </div>
+
+            <div class="bg-white neu-brutal p-4">
+                <h3 class="text-lg font-bold mb-4">Promoter Holdings</h3>
+                <div class="space-y-2">
+                    <p><strong>Promoter Holding:</strong> 72.3%</p>
+                    <p><strong>Public Holding:</strong> 27.7%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts
+        let mainChartOptions = {
+            chart: {
+                type: 'line',
+                height: 400,
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                    }
+                }
+            },
+            series: [{
+                name: 'Stock Price',
+                data: generateDummyData()
+            }],
+            xaxis: {
+                type: 'datetime'
+            }
+        };
+
+        let sentimentChartOptions = {
+            chart: {
+                type: 'bar',
+                height: 200
+            },
+            series: [{
+                name: 'Sentiment',
+                data: [30, -15, 25, -8, 40, -20, 15]
+            }],
+            colors: ['#00ff00', '#ff0000']
+        };
+
+        let mainChart = new ApexCharts(document.querySelector("#mainChart"), mainChartOptions);
+        let sentimentChart = new ApexCharts(document.querySelector("#sentimentChart"), sentimentChartOptions);
+
+        mainChart.render();
+        sentimentChart.render();
+
+        // Generate dummy data
+        function generateDummyData() {
+            let data = [];
+            let date = new Date();
+            for(let i = 0; i < 100; i++) {
+                data.push([
+                    date.getTime(),
+                    Math.floor(Math.random() * 1000)
+                ]);
+                date.setDate(date.getDate() + 1);
+            }
+            return data;
+        }
+
+        // Handle chart type changes
+        document.getElementById('chartType').addEventListener('change', function(e) {
+            mainChartOptions.chart.type = e.target.value.toLowerCase();
+            mainChart.updateOptions(mainChartOptions);
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
